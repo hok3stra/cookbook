@@ -94,7 +94,7 @@
     .recipe-content { padding: 22px 23px 20px; }
     .recipe-detail-head { display: flex; justify-content: space-between; gap: 15px; align-items: flex-start; margin-bottom: 18px; }
     .recipe-detail-head h2 { margin: 0 0 7px; font: 500 27px/1.15 Georgia, "Times New Roman", serif; letter-spacing: -.6px; }
-    .recipe-actions { display: flex; flex: 0 0 auto; align-items: center; gap: 6px; }
+    .recipe-actions { display: flex; flex: 0 0 auto; flex-wrap: wrap; align-items: center; gap: 6px; }
     .recipe-action { min-height: 34px; padding: 0 9px; border: 1px solid var(--line); border-radius: 8px; color: var(--green-dark); background: white; font-size: 10px; font-weight: 700; }
     .recipe-action:hover { background: #f5f7f2; }
     .recipe-action.delete { color: #a34e3b; }
@@ -449,6 +449,70 @@
       return Array.isArray(ids) ? ids : [];
     }
 
+    function getRecipeShareText(recipe) {
+      return [
+        `${recipe.emoji || "🍲"} ${recipe.name}`,
+        recipe.description || "",
+        `Prep time: ${recipe.time || "—"}`,
+        `Serves: ${recipe.servings || 2}`,
+        "",
+        "Ingredients:",
+        ...recipe.ingredients.map(ingredient => `• ${ingredient.name}`)
+      ].filter(Boolean).join("\n");
+    }
+
+    async function copyText(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        try {
+          await navigator.clipboard.writeText(text);
+          return;
+        } catch (error) {
+          console.error("Could not copy recipe using the Clipboard API.", error);
+        }
+      }
+
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      textArea.setAttribute("readonly", "");
+      textArea.style.position = "fixed";
+      textArea.style.opacity = "0";
+      document.body.append(textArea);
+      let copied;
+      try {
+        textArea.select();
+        copied = document.execCommand("copy");
+      } finally {
+        textArea.remove();
+      }
+      if (!copied) throw new Error("Clipboard access is unavailable.");
+    }
+
+    async function shareRecipe(recipeId) {
+      const recipe = state.recipes.find(item => item.id === recipeId);
+      if (!recipe) {
+        showToast("That recipe could not be found.");
+        return;
+      }
+
+      const text = getRecipeShareText(recipe);
+      if (typeof navigator.share === "function") {
+        try {
+          await navigator.share({ title: recipe.name, text });
+          return;
+        } catch (error) {
+          if (error.name === "AbortError") return;
+          console.error("Could not share recipe. Trying the clipboard instead.", error);
+        }
+      }
+      try {
+        await copyText(text);
+        showToast("Recipe copied. Paste it into a message to share.");
+      } catch (error) {
+        console.error("Could not copy recipe.", error);
+        showToast("Could not share or copy this recipe. Check your browser permissions and try again.");
+      }
+    }
+
     function showToast(message) {
       const toast = document.getElementById("toast");
       toast.textContent = message;
@@ -668,6 +732,7 @@
             </div>
             <div class="recipe-actions">
               <span class="recipe-badge">${escapeHtml(recipe.emoji || "🍲")} &nbsp; Recipe</span>
+              <button type="button" class="recipe-action" data-action="share-recipe" data-recipe-id="${escapeHtml(recipe.id)}">Share</button>
               <button type="button" class="recipe-action" data-action="edit-recipe" data-recipe-id="${escapeHtml(recipe.id)}">Edit</button>
               <button type="button" class="recipe-action delete" data-action="delete-recipe" data-recipe-id="${escapeHtml(recipe.id)}">Delete</button>
             </div>
@@ -781,6 +846,8 @@
       } else if (action === "edit-recipe") {
         const recipe = state.recipes.find(item => item.id === button.dataset.recipeId);
         if (recipe) openRecipeForm(recipe);
+      } else if (action === "share-recipe") {
+        shareRecipe(button.dataset.recipeId);
       } else if (action === "delete-recipe") {
         const recipe = state.recipes.find(item => item.id === button.dataset.recipeId);
         if (recipe) deleteRecipe(recipe);
