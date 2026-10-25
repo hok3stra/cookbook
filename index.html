@@ -72,7 +72,7 @@
     .panel-title { margin: 0; font: 500 21px/1.2 Georgia, "Times New Roman", serif; letter-spacing: -.4px; }
     .subtle-count { color: var(--muted); font-size: 12px; white-space: nowrap; }
     .recipe-tools { padding: 0 17px 15px; }
-    .recipe-backup-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; margin-top: 9px; }
+    .recipe-backup-actions, .shopping-backup-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; margin-top: 9px; }
     .backup-button { min-height: 36px; padding: 7px 5px; border: 1px solid var(--line); border-radius: 8px; color: var(--green-dark); background: #fffefa; font-size: 10px; font-weight: 700; white-space: nowrap; }
     .backup-button:hover { border-color: #bdc8b9; background: #f5f7f2; }
     .search-wrap { position: relative; }
@@ -290,6 +290,11 @@
               </button>
             </form>
             <p class="add-item-label">Add anything you need, recipe or not.</p>
+            <div class="shopping-backup-actions" aria-label="Shopping list sharing">
+              <button class="backup-button" type="button" data-action="export-shopping-list">↓ &nbsp; Export list</button>
+              <button class="backup-button" type="button" data-action="import-shopping-list">↑ &nbsp; Import list</button>
+            </div>
+            <input id="shopping-list-import-input" type="file" accept=".json,application/json" hidden>
             <div class="shopping-list-title-row">
               <h3 class="shopping-section-title">To pick up</h3>
               <label class="show-checked"><input type="checkbox" id="show-checked"> Show checked</label>
@@ -591,6 +596,98 @@
       showToast(`Exported ${state.recipes.length} recipe${state.recipes.length === 1 ? "" : "s"}.`);
     }
 
+    function exportShoppingList() {
+      const backup = {
+        format: "gather-and-graze-shopping-list",
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        shoppingItems: state.shoppingItems
+      };
+      const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `gather-and-graze-shopping-list-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.append(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      showToast(`Exported ${state.shoppingItems.length} shopping-list item${state.shoppingItems.length === 1 ? "" : "s"}.`);
+    }
+
+    function validateShoppingListBackup(backup) {
+      if (!backup || backup.format !== "gather-and-graze-shopping-list" || backup.version !== 1 ||
+          !Array.isArray(backup.shoppingItems) || backup.shoppingItems.length > 1000) {
+        throw new Error("This file is not a supported Gather & Graze shopping-list backup.");
+      }
+
+      return backup.shoppingItems.map((item, itemIndex) => {
+        if (!item || typeof item.name !== "string" || !item.name.trim() || item.name.length > 100) {
+          throw new Error(`Shopping-list item ${itemIndex + 1} is missing a valid name.`);
+        }
+        if (item.checked !== undefined && typeof item.checked !== "boolean") {
+          throw new Error(`Shopping-list item "${item.name}" has an invalid picked-up status.`);
+        }
+        if (item.source !== undefined && (typeof item.source !== "string" || item.source.length > 80)) {
+          throw new Error(`Shopping-list item "${item.name}" has an invalid recipe source.`);
+        }
+        if (item.sourceRecipeId !== undefined &&
+            (typeof item.sourceRecipeId !== "string" || item.sourceRecipeId.length > 100)) {
+          throw new Error(`Shopping-list item "${item.name}" has an invalid recipe reference.`);
+        }
+
+        return {
+          id: typeof item.id === "string" && item.id.trim() ? item.id : makeId(),
+          name: item.name.trim(),
+          source: typeof item.source === "string" ? item.source : "",
+          ...(typeof item.sourceRecipeId === "string" ? { sourceRecipeId: item.sourceRecipeId } : {}),
+          checked: item.checked === true
+        };
+      });
+    }
+
+    async function importShoppingList(file) {
+      if (!file) return;
+      if (file.size > 5 * 1024 * 1024) {
+        showToast("That backup is too large. Choose a file smaller than 5 MB.");
+        return;
+      }
+
+      try {
+        const imported = validateShoppingListBackup(JSON.parse(await file.text()));
+        const itemNames = new Set(state.shoppingItems.map(item => item.name.trim().toLocaleLowerCase()));
+        const itemIds = new Set(state.shoppingItems.map(item => item.id));
+        const additions = [];
+
+        for (const item of imported) {
+          const normalizedName = item.name.toLocaleLowerCase();
+          if (itemNames.has(normalizedName)) continue;
+          itemNames.add(normalizedName);
+          while (itemIds.has(item.id)) item.id = makeId();
+          itemIds.add(item.id);
+          additions.push(item);
+        }
+
+        if (additions.length) {
+          state.shoppingItems.push(...additions);
+          if (!saveState()) {
+            state.shoppingItems.splice(state.shoppingItems.length - additions.length, additions.length);
+            return;
+          }
+          renderShoppingList();
+        }
+        const skipped = imported.length - additions.length;
+        showToast(additions.length
+          ? `Imported ${additions.length} item${additions.length === 1 ? "" : "s"}${skipped ? `; skipped ${skipped} duplicate${skipped === 1 ? "" : "s"}` : ""}.`
+          : imported.length ? "Every item in that list is already saved." : "That shopping-list backup is empty.");
+      } catch (error) {
+        console.error("Could not import shopping-list backup.", error);
+        showToast(error instanceof SyntaxError
+          ? "That file is not valid JSON. Choose a Gather & Graze shopping-list backup."
+          : error.message || "Could not import that shopping-list backup.");
+      }
+    }
+
     function validateRecipeBackup(backup) {
       if (!backup || backup.format !== "gather-and-graze-recipe-backup" || backup.version !== 1 ||
           !Array.isArray(backup.recipes) || backup.recipes.length > 500) {
@@ -860,6 +957,10 @@
         exportRecipes();
       } else if (action === "import-recipes") {
         document.getElementById("recipe-import-input").click();
+      } else if (action === "export-shopping-list") {
+        exportShoppingList();
+      } else if (action === "import-shopping-list") {
+        document.getElementById("shopping-list-import-input").click();
       } else if (action === "toggle-shopping-mode") {
         setShoppingMode(!shoppingMode);
       }
@@ -895,6 +996,12 @@
       const file = input.files[0];
       input.value = "";
       importRecipes(file);
+    });
+    document.getElementById("shopping-list-import-input").addEventListener("change", event => {
+      const input = event.currentTarget;
+      const file = input.files[0];
+      input.value = "";
+      importShoppingList(file);
     });
 
     document.getElementById("ad-hoc-form").addEventListener("submit", event => {
