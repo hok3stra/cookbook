@@ -555,9 +555,10 @@
     function getShoppingCategory(ingredient) {
       const normalized = normalizeShoppingName(ingredient);
       const searchable = ` ${normalized} `;
-      return SHOPPING_CATEGORIES.find(category =>
+      const category = SHOPPING_CATEGORIES.find(category =>
         category.terms.some(term => searchable.includes(` ${normalizeShoppingName(term)} `))
-      ).name;
+      );
+      return category ? category.name : "Other";
     }
 
     function groupShoppingItems(items) {
