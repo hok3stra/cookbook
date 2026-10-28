@@ -504,13 +504,28 @@
       cup: "cup", tbsp: "tablespoon", tsp: "teaspoon", oz: "ounce", lb: "pound",
       g: "gram", kg: "kilogram", ml: "milliliter", l: "liter", clove: "clove",
       can: "can", bunch: "bunch", slice: "slice", stalk: "stalk", sprig: "sprig",
-      head: "head", package: "package"
+      head: "head", package: "package", floz: "fl oz"
     };
-    const PRODUCE_UNITS_PER_ITEM = {
-      cup: 1, tbsp: 16, tsp: 48, oz: 5, lb: 5 / 16, g: 140, kg: 0.14, ml: 240, l: 0.24
+    const PRODUCE_CUPS_PER_ITEM = {
+      artichoke: 1.5, arugula: 0.5, asparagus: 1, avocado: 1.5, basil: 1,
+      "bell pepper": 1.5, broccoli: 3, cabbage: 8, carrot: 0.5, cauliflower: 6,
+      celery: 4, chard: 2, chive: 0.25, cilantro: 1, corn: 0.75, cucumber: 2.5,
+      dill: 0.5, eggplant: 4,       garlic: 0.25, ginger: 0.25, kale: 2, leek: 2,
+      lettuce: 4, mint: 0.5, mushroom: 3, onion: 1, oregano: 0.5, parsley: 1,
+      parsnip: 1.5, peas: 1, pepper: 1.5, potato: 2, pumpkin: 8, radish: 0.25,
+      rosemary: 0.25, scallion: 0.25, shallot: 0.25, spinach: 2, squash: 4,
+      thyme: 0.25, tomato: 1, turnip: 1.5, zucchini: 1.5, apple: 1.25,
+      banana: 1.25, berry: 1, blueberry: 0.25, lemon: 0.5, lime: 0.5,
+      orange: 1.25, pear: 1.25, strawberry: 0.25
     };
-    const ONION_VARIANTS = new Set(["onion", "red onion", "yellow onion", "white onion", "sweet onion"]);
-    const COUNTABLE_PRODUCE = new Set([...ONION_VARIANTS, "tomato"]);
+    const PRODUCE_PURCHASE_UNITS = {
+      arugula: "bunch", asparagus: "bunch", basil: "bunch", chard: "bunch",
+      chive: "bunch", cilantro: "bunch", dill: "bunch", kale: "bunch",
+      mint: "bunch", oregano: "bunch", parsley: "bunch", rosemary: "bunch",
+      spinach: "bunch", thyme: "bunch", broccoli: "head", cabbage: "head",
+      cauliflower: "head", lettuce: "head", celery: "stalk"
+    };
+    const COUNT_UNITS = new Set(["clove", "bunch", "can", "slice", "stalk", "sprig", "package"]);
     const UNICODE_FRACTIONS = { "½": 0.5, "⅓": 1 / 3, "⅔": 2 / 3, "¼": 0.25, "¾": 0.75, "⅛": 0.125, "⅜": 0.375, "⅝": 0.625, "⅞": 0.875 };
 
     function normalizeShoppingName(name) {
@@ -539,8 +554,13 @@
 
       let rest = match[2].trim();
       let unit = "";
+      const fluidOuncePrefix = rest.match(/^fl(?:uid)?\.?\s+ounces?\b\s*/i);
       const unitPrefix = rest.match(/^([a-zA-Z]+\.?)(?:\s+|$)/);
-      if (unitPrefix) {
+      if (fluidOuncePrefix) {
+        unit = "floz";
+        rest = rest.slice(fluidOuncePrefix[0].length).trim();
+      }
+      else if (unitPrefix) {
         const candidate = unitPrefix[1].replace(/\.$/, "").toLocaleLowerCase();
         if (SHOPPING_UNITS[candidate]) {
           unit = SHOPPING_UNITS[candidate];
@@ -583,20 +603,60 @@
       return `${Math.abs(roundedAmount - quantity) > 0.01 ? "about " : ""}${formattedAmount}`;
     }
 
-    function convertToPurchasableQuantity(parsed) {
-      const ingredient = normalizeShoppingName(parsed.ingredient)
+    function normalizeShoppingIngredient(ingredient) {
+      return normalizeShoppingName(ingredient)
         .replace(/^(?:(?:finely |roughly |coarsely )?(?:chopped |diced |minced |sliced |grated )|of )+/g, "")
         .replace(/^(?:small |medium |large |whole )+/, "")
         .replace(/\s+(?:(?:finely |roughly |coarsely )?(?:chopped|diced|minced|sliced|grated))$/, "");
-      if (!COUNTABLE_PRODUCE.has(ingredient)) return null;
+    }
 
-      if (!parsed.unit || parsed.unit === "head") {
-        return { quantity: parsed.quantity, ingredient };
+    function getProduceCupsPerItem(ingredient) {
+      const searchable = ` ${ingredient} `;
+      const term = SHOPPING_CATEGORIES[0].terms
+        .slice()
+        .sort((left, right) => right.length - left.length)
+        .find(candidate => searchable.includes(` ${normalizeShoppingName(candidate)} `));
+      return PRODUCE_CUPS_PER_ITEM[term] || 1;
+    }
+
+    function getProducePurchaseUnit(ingredient) {
+      const searchable = ` ${ingredient} `;
+      const term = SHOPPING_CATEGORIES[0].terms
+        .slice()
+        .sort((left, right) => right.length - left.length)
+        .find(candidate => searchable.includes(` ${normalizeShoppingName(candidate)} `));
+      return PRODUCE_PURCHASE_UNITS[term] || "";
+    }
+
+    function convertToPurchasableQuantity(parsed) {
+      const ingredient = normalizeShoppingIngredient(parsed.ingredient);
+      const category = getShoppingCategory(ingredient);
+      const isProduce = category === "Produce";
+      const isSoupOrBroth = ingredient.split(" ").some(word => word === "broth" || word === "soup");
+      if (!isProduce && !isSoupOrBroth && parsed.unit !== "cup") return null;
+
+      if (isProduce) {
+        const purchaseUnit = getProducePurchaseUnit(ingredient);
+        if (!parsed.unit) return { quantity: parsed.quantity, unit: purchaseUnit, ingredient };
+        if (parsed.unit === "head") return { quantity: parsed.quantity, unit: purchaseUnit, ingredient };
+        if (COUNT_UNITS.has(parsed.unit)) return null;
+        const cupsPerItem = getProduceCupsPerItem(ingredient);
+        const cupsPerUnit = { cup: 1, tbsp: 1 / 16, tsp: 1 / 48, ml: 1 / 236.588, l: 4.22675 };
+        const ouncesPerUnit = { oz: 1, lb: 16, g: 1 / 28.3495, kg: 1000 / 28.3495 };
+        const unitInCups = cupsPerUnit[parsed.unit] ?? (ouncesPerUnit[parsed.unit] / 4);
+        return Number.isFinite(unitInCups)
+          ? { quantity: parsed.quantity * unitInCups / cupsPerItem, unit: purchaseUnit, ingredient }
+          : null;
       }
 
-      const unitsPerItem = PRODUCE_UNITS_PER_ITEM[parsed.unit];
-      return unitsPerItem
-        ? { quantity: parsed.quantity / unitsPerItem, ingredient }
+      const fluidOuncesPerUnit = {
+        cup: 8, tbsp: 0.5, tsp: 1 / 6, floz: 1, oz: 1,
+        lb: 16, ml: 1 / 29.5735, l: 1000 / 29.5735,
+        g: 1 / 29.5735, kg: 1000 / 29.5735
+      };
+      const fluidOunces = fluidOuncesPerUnit[parsed.unit];
+      return fluidOunces
+        ? { quantity: parsed.quantity * fluidOunces, unit: "floz", ingredient }
         : null;
     }
 
@@ -620,7 +680,7 @@
         const parsed = parseShoppingQuantity(item.name);
         const converted = parsed ? convertToPurchasableQuantity(parsed) : null;
         const ingredient = converted ? converted.ingredient : parsed?.ingredient || item.name;
-        const unit = converted ? "" : parsed?.unit || "";
+        const unit = converted ? converted.unit : parsed?.unit || "";
         const normalizedName = normalizeShoppingName(ingredient);
         const key = `${item.checked ? "checked" : "needed"}:${parsed ? `quantity:${unit}:` : "name:"}${normalizedName}`;
         let group = groups.get(key);
@@ -641,9 +701,12 @@
         if (group.parsed) {
           const unitName = SHOPPING_UNIT_NAMES[group.unit];
           const displayQuantity = getShoppingDisplayQuantity(group);
-          const unit = unitName ? `${unitName}${displayQuantity >= 1.0001 ? "s" : ""}` : "";
-          const ingredient = !unitName && displayQuantity !== 1 && COUNTABLE_PRODUCE.has(normalizeShoppingName(group.ingredient))
-            ? group.ingredient === "tomato" ? "tomatoes" : `${group.ingredient}s`
+          const unit = group.unit === "floz"
+            ? unitName
+            : unitName ? `${unitName}${displayQuantity >= 1.0001 ? "s" : ""}` : "";
+          const producePlurals = { berry: "berries", blueberry: "blueberries", strawberry: "strawberries" };
+          const ingredient = !unitName && displayQuantity !== 1 && getShoppingCategory(group.ingredient) === "Produce"
+            ? producePlurals[group.ingredient] || `${group.ingredient}s`
             : group.ingredient;
           group.name = `${formatShoppingQuantity(displayQuantity)}${unit ? ` ${unit}` : ""} ${ingredient}`;
         }

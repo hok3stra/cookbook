@@ -1,4 +1,4 @@
-const CACHE_NAME = "gather-and-graze-v13";
+const CACHE_NAME = "gather-and-graze-v14";
 const APP_SHELL = [
   "./",
   "./index.html",
