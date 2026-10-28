@@ -62,6 +62,8 @@
     .install-button:hover { border-color: #b7c8b7; background: var(--green-soft); }
     .shopping-mode-button { min-height: 40px; padding: 0 14px; border: 1px solid var(--green-dark); border-radius: 9px; color: white; background: var(--green); box-shadow: 0 3px 8px rgba(38, 70, 51, .16); font-size: 11px; font-weight: 750; white-space: nowrap; transition: background .15s ease, box-shadow .15s ease, transform .15s ease; }
     .shopping-mode-button:hover { background: var(--green-dark); box-shadow: 0 5px 12px rgba(38, 70, 51, .22); transform: translateY(-1px); }
+    .history-button { min-height: 40px; padding: 0 12px; border: 1px solid #dce3d8; border-radius: 9px; color: var(--green-dark); background: var(--green-tint); font-size: 11px; font-weight: 750; white-space: nowrap; transition: background .15s ease, border-color .15s ease; }
+    .history-button:hover { border-color: #bdc8b9; background: var(--green-soft); }
     body.shopping-mode .shell { width: min(900px, 100%); }
     body.shopping-mode .topbar { position: sticky; top: 0; z-index: 4; background: var(--page-green); }
     body.shopping-mode .intro { display: none; }
@@ -180,19 +182,25 @@
     .list-footer { margin-top: 11px; padding-top: 10px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--line); color: var(--muted); font-size: 10px; }
     .clear-checked { padding: 5px 8px; border: 1px solid #dce6da; border-radius: 7px; color: var(--green-dark); background: var(--green-tint); font-size: 10px; font-weight: 700; transition: background .15s ease, border-color .15s ease; }
     .clear-checked:hover { border-color: #bdcdbb; background: var(--green-soft); }
-    .list-footer-actions { display: flex; align-items: center; gap: 12px; }
+    .list-footer-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 7px; }
     .clear-list { color: var(--danger); background: var(--danger-soft); }
+    .complete-shop-button { padding: 5px 8px; border: 1px solid var(--green-dark); border-radius: 7px; color: white; background: var(--green); font-size: 10px; font-weight: 750; white-space: nowrap; }
+    .complete-shop-button:hover:not(:disabled) { background: var(--green-dark); }
+    .complete-shop-button:disabled { cursor: not-allowed; opacity: .48; }
+    .complete-shop-items { max-height: 120px; overflow-y: auto; margin: 0; padding: 9px 11px 9px 29px; border: 1px solid var(--line); border-radius: 8px; background: #fff; font-size: 11px; }
+    .complete-shop-items li + li { margin-top: 5px; }
 
     .toast { position: fixed; left: 50%; bottom: 24px; z-index: 5; padding: 12px 17px; border-radius: 10px; color: white; background: #263c2d; box-shadow: 0 8px 24px rgba(0,0,0,.16); font-size: 12px; opacity: 0; transform: translate(-50%, 10px); pointer-events: none; transition: opacity .2s ease, transform .2s ease; }
     .toast.visible { opacity: 1; transform: translate(-50%, 0); }
     dialog { width: min(480px, calc(100% - 32px)); padding: 0; border: 1px solid var(--line); border-radius: 16px; color: var(--ink); background: var(--paper); box-shadow: 0 24px 80px rgba(20,30,22,.22); }
+    #history-report-dialog { width: min(720px, calc(100% - 32px)); }
     dialog::backdrop { background: rgba(31, 40, 32, .38); backdrop-filter: blur(3px); }
     .dialog-head { padding: 22px 24px 10px; }
     .dialog-head h2 { margin: 0 0 6px; font: 500 25px Georgia, "Times New Roman", serif; }
     .dialog-head p { margin: 0; color: var(--muted); font-size: 12px; }
     .dialog-form { padding: 13px 24px 22px; }
     .field { display: grid; gap: 6px; margin-bottom: 14px; }
-    .field label { font-size: 11px; font-weight: 700; }
+    .field label, .field-label { font-size: 11px; font-weight: 700; }
     .text-area { min-height: 112px; padding: 10px 11px; resize: vertical; line-height: 1.5; }
     .field-help { margin: -2px 0 0; color: var(--muted); font-size: 10px; }
     .field-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -203,6 +211,22 @@
     .empty-recipe .recipe-emoji { margin: 0 auto 14px; }
     .empty-recipe h2 { margin-bottom: 7px; font: 500 24px Georgia, "Times New Roman", serif; }
     .empty-recipe p { margin-bottom: 18px; color: var(--muted); font-size: 12px; }
+    .history-report-content { max-height: min(65vh, 560px); overflow-y: auto; padding: 0 24px 20px; }
+    .history-empty { padding: 24px 12px; border: 1px dashed var(--line); border-radius: 10px; color: var(--muted); font-size: 12px; text-align: center; }
+    .history-chart-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+    .history-chart { display: block; min-width: 100%; }
+    .history-chart-grid { stroke: #e8eee7; stroke-width: 1; }
+    .history-chart-axis { fill: var(--muted); font: 11px Inter, ui-sans-serif, system-ui, sans-serif; }
+    .history-chart-bar { fill: var(--green); }
+    .history-chart-bar:hover { fill: var(--green-dark); }
+    .history-report-list { display: grid; gap: 10px; margin-top: 16px; }
+    .history-record { padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+    .history-record-head { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 8px; font-size: 12px; }
+    .history-record-head strong { color: var(--green-dark); }
+    .history-details { margin-top: 9px; color: var(--muted); font-size: 11px; }
+    .history-details summary { width: fit-content; color: var(--green-dark); font-weight: 700; cursor: pointer; }
+    .history-details ul { display: grid; gap: 6px; margin: 9px 0 0; padding-left: 20px; color: var(--ink); }
+    .history-item-source { display: block; margin-top: 2px; color: var(--muted); font-size: 10px; }
 
     @media (max-width: 1120px) {
       .shell { padding-right: 28px; padding-left: 28px; }
@@ -231,10 +255,14 @@
       .text-input, .text-area, .search { font-size: 16px; }
       dialog { max-height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 24px); overflow-y: auto; overscroll-behavior: contain; }
       .dialog-form { padding-bottom: calc(22px + env(safe-area-inset-bottom)); }
+      .history-report-content { max-height: 55vh; padding-right: 17px; padding-left: 17px; }
     }
     @media (max-width: 390px) {
       .brand-name { font-size: 19px; }
       .install-button { gap: 5px; padding: 0 8px; font-size: 10px; }
+      .history-button { padding: 0 7px; font-size: 9px; }
+      .shopping-mode-button { padding: 0 8px; font-size: 10px; }
+      .topbar-actions { gap: 6px; }
       .recipe-detail-head { flex-direction: column; }
       .recipe-facts { gap: 11px; font-size: 10px; }
       .recipe-footer { align-items: stretch; flex-direction: column; }
@@ -260,6 +288,9 @@
         </button>
         <button class="shopping-mode-button" id="shopping-mode-button" type="button" data-action="toggle-shopping-mode" aria-pressed="false">
           Shopping mode
+        </button>
+        <button class="history-button" id="history-report-button" type="button" data-action="open-history-report">
+          History report
         </button>
       </div>
     </header>
@@ -368,6 +399,39 @@
       </div>
     </form>
   </dialog>
+  <dialog id="complete-shop-dialog">
+    <div class="dialog-head">
+      <h2>Complete shop</h2>
+      <p>Save the total cost and picked-up items from this grocery run.</p>
+    </div>
+    <form class="dialog-form" id="complete-shop-form">
+      <div class="field">
+        <label for="shop-total-cost">Total shop cost</label>
+        <input class="text-input" id="shop-total-cost" name="cost" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" required>
+      </div>
+      <div class="field">
+        <span class="field-label">Picked-up items to record</span>
+        <ul id="complete-shop-items" class="complete-shop-items"></ul>
+        <p class="field-help">These checked items will be removed from your active shopping list.</p>
+      </div>
+      <div class="dialog-actions">
+        <button class="secondary-button" type="button" data-action="close-complete-shop">Cancel</button>
+        <button class="primary-button" type="submit">Save completed shop</button>
+      </div>
+    </form>
+  </dialog>
+  <dialog id="history-report-dialog">
+    <div class="dialog-head">
+      <h2>Shopping history</h2>
+      <p>Your completed shops, costs, and picked-up items.</p>
+    </div>
+    <div class="history-report-content" id="history-report-content"></div>
+    <div class="dialog-form">
+      <div class="dialog-actions">
+        <button class="primary-button" type="button" data-action="close-history-report">Close report</button>
+      </div>
+    </div>
+  </dialog>
   <dialog id="install-help-dialog">
     <div class="dialog-head">
       <h2>Add Gather &amp; Graze</h2>
@@ -402,6 +466,27 @@
         : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
     }
 
+    function loadShopHistory(records) {
+      if (!Array.isArray(records)) return [];
+      return records.filter(record =>
+        record && typeof record.id === "string" && typeof record.completedAt === "string" &&
+        Number.isFinite(Date.parse(record.completedAt)) && Number.isFinite(record.total) &&
+        record.total >= 0 && Array.isArray(record.items)
+      ).map(record => ({
+        id: record.id,
+        completedAt: record.completedAt,
+        total: Math.round(record.total * 100) / 100,
+        items: record.items
+          .filter(item => item && typeof item.name === "string")
+          .map(item => ({
+            name: item.name.slice(0, 200),
+            sources: Array.isArray(item.sources)
+              ? item.sources.filter(source => typeof source === "string").slice(0, 20)
+              : []
+          }))
+      })).slice(0, 500);
+    }
+
     function loadState() {
       try {
         const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
@@ -424,7 +509,8 @@
             selectedRecipeId: saved.selectedRecipeId === ""
               ? "" : recipes.some(recipe => recipe.id === saved.selectedRecipeId)
                 ? saved.selectedRecipeId : recipes[0]?.id || "",
-            pantry
+            pantry,
+            shopHistory: loadShopHistory(saved.shopHistory)
           };
           if (recipes.length !== saved.recipes.length ||
               shoppingItems.length !== saved.shoppingItems.length ||
@@ -444,7 +530,8 @@
         recipes: [],
         shoppingItems: [],
         selectedRecipeId: "",
-        pantry: {}
+        pantry: {},
+        shopHistory: []
       };
     }
 
@@ -1203,9 +1290,116 @@
               </button>
             </div>`).join("")}`).join("")
         : `<div class="empty-list"><strong>${unchecked.length === 0 && checked.length > 0 ? "All picked up!" : "Your list is clear."}</strong><span>${unchecked.length === 0 && checked.length > 0 ? "Nice work. You have everything you need." : "Add ingredients from a recipe or pop in anything else you need."}</span></div>`;
-      document.getElementById("list-footer").innerHTML = state.shoppingItems.length
-        ? `<span>${checked.length ? `${checked.length} picked up · ` : ""}${unchecked.length} to go</span><div class="list-footer-actions">${checked.length ? '<button type="button" class="clear-checked" data-action="clear-checked">Clear picked up</button>' : ""}<button type="button" class="clear-list" data-action="clear-list">Clear list</button></div>`
-        : `<span>Your list is saved on this device.</span>`;
+      document.getElementById("list-footer").innerHTML = `
+        <span>${state.shoppingItems.length
+          ? `${checked.length ? `${checked.length} picked up · ` : ""}${unchecked.length} to go`
+          : "Your list is saved on this device."}</span>
+        <div class="list-footer-actions">
+          <button type="button" class="complete-shop-button" data-action="complete-shop">Complete shop</button>
+          ${checked.length ? '<button type="button" class="clear-checked" data-action="clear-checked">Clear picked up</button>' : ""}
+          ${state.shoppingItems.length ? '<button type="button" class="clear-list" data-action="clear-list">Clear list</button>' : ""}
+        </div>`;
+    }
+
+    function openCompleteShopDialog() {
+      const checkedItems = groupShoppingItems(state.shoppingItems).filter(item => item.checked);
+      document.getElementById("complete-shop-items").innerHTML = checkedItems.length
+        ? checkedItems.map(item => `<li>${escapeHtml(item.name)}</li>`).join("")
+        : "<li>No items are checked off. You can still save the shop total.</li>";
+      document.getElementById("shop-total-cost").value = "";
+      document.getElementById("complete-shop-dialog").showModal();
+      document.getElementById("shop-total-cost").focus();
+    }
+
+    function completeShop(cost) {
+      const checkedItems = groupShoppingItems(state.shoppingItems).filter(item => item.checked);
+      const checkedIds = new Set(checkedItems.flatMap(item => item.itemIds));
+      const previousItems = state.shoppingItems;
+      const previousHistory = state.shopHistory;
+      const record = {
+        id: makeId(),
+        completedAt: new Date().toISOString(),
+        total: Math.round(cost * 100) / 100,
+        items: checkedItems.map(item => ({ name: item.name, sources: item.sources }))
+      };
+      state.shoppingItems = previousItems.filter(item => !checkedIds.has(item.id));
+      state.shopHistory = [record, ...previousHistory].slice(0, 500);
+      if (!saveState()) {
+        state.shoppingItems = previousItems;
+        state.shopHistory = previousHistory;
+        return false;
+      }
+      document.getElementById("complete-shop-dialog").close();
+      renderShoppingList();
+      showToast("Shop saved to your history.");
+      return true;
+    }
+
+    function renderShopHistory() {
+      const content = document.getElementById("history-report-content");
+      if (!state.shopHistory.length) {
+        content.innerHTML = '<div class="history-empty">Your completed shops will appear here.</div>';
+        return;
+      }
+      const currency = new Intl.NumberFormat(undefined, { style: "currency", currency: "USD" });
+      const highestTotal = Math.max(...state.shopHistory.map(record => record.total), 0);
+      const chartRecords = [...state.shopHistory]
+        .sort((left, right) => Date.parse(left.completedAt) - Date.parse(right.completedAt));
+      const chartWidth = Math.max(560, chartRecords.length * 72 + 84);
+      const chartHeight = 300;
+      const chartLeft = 72;
+      const chartRight = chartWidth - 18;
+      const chartTop = 24;
+      const chartBottom = chartHeight - 52;
+      const chartHeightRange = chartBottom - chartTop;
+      const chartStep = (chartRight - chartLeft) / chartRecords.length;
+      const dateFormatter = new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" });
+      const chartGrid = Array.from({ length: 5 }, (_, index) => {
+        const value = highestTotal * (4 - index) / 4;
+        const y = chartTop + chartHeightRange * index / 4;
+        return `<line class="history-chart-grid" x1="${chartLeft}" y1="${y}" x2="${chartRight}" y2="${y}"></line>
+          <text class="history-chart-axis" x="${chartLeft - 10}" y="${y + 4}" text-anchor="end">${escapeHtml(currency.format(value))}</text>`;
+      }).join("");
+      const chartBars = chartRecords.map((record, index) => {
+        const x = chartLeft + chartStep * index + chartStep / 2;
+        const barHeight = highestTotal ? record.total / highestTotal * chartHeightRange : 0;
+        const y = chartBottom - barHeight;
+        const date = new Date(record.completedAt);
+        const label = dateFormatter.format(date);
+        return `<g>
+          <title>${escapeHtml(date.toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" }))}: ${escapeHtml(currency.format(record.total))}</title>
+          <rect class="history-chart-bar" x="${x - Math.min(20, chartStep * 0.3)}" y="${y}" width="${Math.min(40, chartStep * 0.6)}" height="${barHeight}" rx="4"></rect>
+          <text class="history-chart-axis" x="${x}" y="${chartBottom + 20}" text-anchor="middle">${escapeHtml(label)}</text>
+        </g>`;
+      }).join("");
+      const detailsRecords = [...state.shopHistory].map(record => {
+          const date = new Date(record.completedAt);
+          const dateLabel = date.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+          return `<article class="history-record" role="listitem">
+            <div class="history-record-head"><span>${escapeHtml(dateLabel)}</span><strong>${currency.format(record.total)}</strong></div>
+            <details class="history-details">
+              <summary>More information</summary>
+              <ul>${record.items.length ? record.items.map(item => `<li>${escapeHtml(item.name)}${item.sources.length ? `<span class="history-item-source">From ${escapeHtml(item.sources.join(", "))}</span>` : ""}</li>`).join("") : "<li>No checked-off items were recorded.</li>"}</ul>
+            </details>
+          </article>`;
+        }).join("");
+      content.innerHTML = `<h3>Shop cost over time</h3>
+        <div class="history-chart-wrap">
+          <svg class="history-chart" viewBox="0 0 ${chartWidth} ${chartHeight}" role="img" aria-label="Bar chart showing each completed shop total over time">
+            <title>Shopping costs over time</title>
+            <desc>Each bar shows the total cost of one completed shop, ordered from oldest to newest.</desc>
+            ${chartGrid}
+            <line class="history-chart-grid" x1="${chartLeft}" y1="${chartBottom}" x2="${chartRight}" y2="${chartBottom}"></line>
+            ${chartBars}
+          </svg>
+        </div>
+        <h3 style="margin: 18px 0 0">Shop details</h3>
+        <div class="history-report-list" role="list" aria-label="Completed shop details">${detailsRecords}</div>`;
+    }
+
+    function openShopHistory() {
+      renderShopHistory();
+      document.getElementById("history-report-dialog").showModal();
     }
 
     function render() {
@@ -1280,6 +1474,14 @@
         saveState();
         renderShoppingList();
         showToast("Shopping list cleared.");
+      } else if (action === "complete-shop") {
+        openCompleteShopDialog();
+      } else if (action === "close-complete-shop") {
+        document.getElementById("complete-shop-dialog").close();
+      } else if (action === "open-history-report") {
+        openShopHistory();
+      } else if (action === "close-history-report") {
+        document.getElementById("history-report-dialog").close();
       } else if (action === "open-recipe-form") {
         openRecipeForm();
       } else if (action === "edit-recipe") {
@@ -1361,6 +1563,22 @@
       saveState();
       renderShoppingList();
       showToast("Added to your shopping list.");
+    });
+
+    document.getElementById("complete-shop-form").addEventListener("submit", event => {
+      event.preventDefault();
+      const costInput = document.getElementById("shop-total-cost");
+      const cost = Number(costInput.value);
+      if (!Number.isFinite(cost) || cost < 0) {
+        costInput.setCustomValidity("Enter a valid shop total.");
+        costInput.reportValidity();
+        return;
+      }
+      costInput.setCustomValidity("");
+      completeShop(cost);
+    });
+    document.getElementById("shop-total-cost").addEventListener("input", event => {
+      event.currentTarget.setCustomValidity("");
     });
 
     document.getElementById("recipe-form").addEventListener("submit", event => {
