@@ -506,6 +506,11 @@
       can: "can", bunch: "bunch", slice: "slice", stalk: "stalk", sprig: "sprig",
       head: "head", package: "package"
     };
+    const PRODUCE_UNITS_PER_ITEM = {
+      cup: 1, tbsp: 16, tsp: 48, oz: 5, lb: 5 / 16, g: 140, kg: 0.14, ml: 240, l: 0.24
+    };
+    const ONION_VARIANTS = new Set(["onion", "red onion", "yellow onion", "white onion", "sweet onion"]);
+    const COUNTABLE_PRODUCE = new Set([...ONION_VARIANTS, "tomato"]);
     const UNICODE_FRACTIONS = { "½": 0.5, "⅓": 1 / 3, "⅔": 2 / 3, "¼": 0.25, "¾": 0.75, "⅛": 0.125, "⅜": 0.375, "⅝": 0.625, "⅞": 0.875 };
 
     function normalizeShoppingName(name) {
@@ -578,8 +583,30 @@
       return `${Math.abs(roundedAmount - quantity) > 0.01 ? "about " : ""}${formattedAmount}`;
     }
 
+    function convertToPurchasableQuantity(parsed) {
+      const ingredient = normalizeShoppingName(parsed.ingredient)
+        .replace(/^(?:(?:finely |roughly |coarsely )?(?:chopped |diced |minced |sliced |grated )|of )+/g, "")
+        .replace(/^(?:small |medium |large |whole )+/, "")
+        .replace(/\s+(?:(?:finely |roughly |coarsely )?(?:chopped|diced|minced|sliced|grated))$/, "");
+      if (!COUNTABLE_PRODUCE.has(ingredient)) return null;
+
+      if (!parsed.unit || parsed.unit === "head") {
+        return { quantity: parsed.quantity, ingredient };
+      }
+
+      const unitsPerItem = PRODUCE_UNITS_PER_ITEM[parsed.unit];
+      return unitsPerItem
+        ? { quantity: parsed.quantity / unitsPerItem, ingredient }
+        : null;
+    }
+
+    function getShoppingDisplayQuantity(group) {
+      return Math.ceil(group.amount - 0.000001);
+    }
+
     function getShoppingCategory(ingredient) {
       const normalized = normalizeShoppingName(ingredient);
+      if (normalized.split(" ").some(word => word === "broth" || word === "soup")) return "Pantry";
       const searchable = ` ${normalized} `;
       const category = SHOPPING_CATEGORIES.find(category =>
         category.terms.some(term => searchable.includes(` ${normalizeShoppingName(term)} `))
@@ -591,27 +618,34 @@
       const groups = new Map();
       for (const item of items) {
         const parsed = parseShoppingQuantity(item.name);
-        const normalizedName = normalizeShoppingName(parsed ? parsed.ingredient : item.name);
-        const key = `${item.checked ? "checked" : "needed"}:${parsed ? `quantity:${parsed.unit}:` : "name:"}${normalizedName}`;
+        const converted = parsed ? convertToPurchasableQuantity(parsed) : null;
+        const ingredient = converted ? converted.ingredient : parsed?.ingredient || item.name;
+        const unit = converted ? "" : parsed?.unit || "";
+        const normalizedName = normalizeShoppingName(ingredient);
+        const key = `${item.checked ? "checked" : "needed"}:${parsed ? `quantity:${unit}:` : "name:"}${normalizedName}`;
         let group = groups.get(key);
         if (!group) {
           group = {
             itemIds: [], checked: item.checked, amount: 0, parsed: Boolean(parsed),
-            unit: parsed?.unit || "", ingredient: parsed?.ingredient || item.name,
-            name: item.name, sources: new Set(), category: getShoppingCategory(parsed?.ingredient || item.name)
+            unit, ingredient, name: item.name,
+            sources: new Set(), category: getShoppingCategory(ingredient)
           };
           groups.set(key, group);
         }
         group.itemIds.push(item.id);
-        if (parsed) group.amount += parsed.quantity;
+        if (parsed) group.amount += converted ? converted.quantity : parsed.quantity;
         if (item.source) group.sources.add(item.source);
       }
 
       return [...groups.values()].map(group => {
         if (group.parsed) {
           const unitName = SHOPPING_UNIT_NAMES[group.unit];
-          const unit = unitName ? `${unitName}${group.amount >= 1.0001 ? "s" : ""}` : "";
-          group.name = `${formatShoppingQuantity(group.amount)}${unit ? ` ${unit}` : ""} ${group.ingredient}`;
+          const displayQuantity = getShoppingDisplayQuantity(group);
+          const unit = unitName ? `${unitName}${displayQuantity >= 1.0001 ? "s" : ""}` : "";
+          const ingredient = !unitName && displayQuantity !== 1 && COUNTABLE_PRODUCE.has(normalizeShoppingName(group.ingredient))
+            ? group.ingredient === "tomato" ? "tomatoes" : `${group.ingredient}s`
+            : group.ingredient;
+          group.name = `${formatShoppingQuantity(displayQuantity)}${unit ? ` ${unit}` : ""} ${ingredient}`;
         }
         group.sources = [...group.sources];
         return group;
