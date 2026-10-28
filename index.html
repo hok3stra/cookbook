@@ -21,10 +21,18 @@
       --green: #345944;
       --green-dark: #264633;
       --green-soft: #e8eee7;
+      --green-tint: #f0f5ef;
       --cream: #f7f6f1;
       --paper: #fffefa;
       --line: #e9e8df;
       --orange: #d9834b;
+      --orange-soft: #fbefe4;
+      --danger: #a34e3b;
+      --danger-soft: #fbf1ed;
+      --page-green: #304b3b;
+      --recipe-list-card: #edf3e8;
+      --recipe-detail-card: #e5eee4;
+      --shopping-card: #edf1e6;
       --shadow: 0 16px 40px rgba(37, 50, 39, .07);
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       font-synthesis: none;
@@ -34,24 +42,28 @@
 
     * { box-sizing: border-box; }
     [hidden] { display: none !important; }
-    body { margin: 0; min-width: 320px; background: var(--cream); color: var(--ink); }
+    body { margin: 0; min-width: 320px; background: var(--page-green); color: var(--ink); }
     button, input, textarea { font: inherit; }
     button { cursor: pointer; }
+    button:focus-visible, input:focus-visible, textarea:focus-visible {
+      outline: 3px solid rgba(217, 131, 75, .48);
+      outline-offset: 2px;
+    }
     .shell { width: min(1440px, 100%); margin: 0 auto; padding: 0 48px 52px; }
-    .topbar { height: 82px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); }
-    .brand { display: flex; align-items: center; gap: 11px; text-decoration: none; color: var(--ink); }
+    .topbar { height: 82px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(237, 243, 232, .2); }
+    .brand { display: flex; align-items: center; gap: 11px; text-decoration: none; color: #f4f3e9; }
     .brand-mark { width: 37px; height: 37px; display: grid; place-items: center; border-radius: 12px; color: white; background: var(--green); }
     .brand-name { font-family: Georgia, "Times New Roman", serif; font-size: 21px; letter-spacing: -.5px; }
-    .brand-name span { color: var(--green); }
-    .top-note { display: flex; gap: 8px; align-items: center; color: var(--muted); font-size: 13px; }
-    .dot { width: 7px; height: 7px; border-radius: 50%; background: #7a9c77; }
+    .brand-name span { color: #e8b47d; }
+    .top-note { display: flex; gap: 8px; align-items: center; color: #d5e0d4; font-size: 13px; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: #a5c28e; }
     .topbar-actions { display: flex; align-items: center; gap: 16px; }
-    .install-button { display: inline-flex; align-items: center; gap: 7px; min-height: 40px; padding: 0 12px; border: 1px solid #dce3d8; border-radius: 9px; color: var(--green-dark); background: #fffefa; font-size: 11px; font-weight: 700; }
-    .install-button:hover { background: var(--green-soft); }
-    .shopping-mode-button { min-height: 40px; padding: 0 12px; border: 1px solid #dce3d8; border-radius: 9px; color: white; background: var(--green); font-size: 11px; font-weight: 700; white-space: nowrap; }
-    .shopping-mode-button:hover { background: var(--green-dark); }
+    .install-button { display: inline-flex; align-items: center; gap: 7px; min-height: 40px; padding: 0 12px; border: 1px solid #dce3d8; border-radius: 9px; color: var(--green-dark); background: var(--green-tint); font-size: 11px; font-weight: 700; transition: background .15s ease, border-color .15s ease; }
+    .install-button:hover { border-color: #b7c8b7; background: var(--green-soft); }
+    .shopping-mode-button { min-height: 40px; padding: 0 14px; border: 1px solid var(--green-dark); border-radius: 9px; color: white; background: var(--green); box-shadow: 0 3px 8px rgba(38, 70, 51, .16); font-size: 11px; font-weight: 750; white-space: nowrap; transition: background .15s ease, box-shadow .15s ease, transform .15s ease; }
+    .shopping-mode-button:hover { background: var(--green-dark); box-shadow: 0 5px 12px rgba(38, 70, 51, .22); transform: translateY(-1px); }
     body.shopping-mode .shell { width: min(900px, 100%); }
-    body.shopping-mode .topbar { position: sticky; top: 0; z-index: 4; background: var(--cream); }
+    body.shopping-mode .topbar { position: sticky; top: 0; z-index: 4; background: var(--page-green); }
     body.shopping-mode .intro { display: none; }
     body.shopping-mode .workspace { grid-template-columns: minmax(0, 1fr); gap: 0; }
     body.shopping-mode .workspace > :first-child,
@@ -60,21 +72,24 @@
     body.shopping-mode .shopping-body { padding-bottom: max(19px, env(safe-area-inset-bottom)); }
 
     .intro { padding: 37px 0 30px; }
-    .eyebrow { margin: 0 0 9px; color: var(--green); font-size: 11px; font-weight: 750; letter-spacing: 1.7px; text-transform: uppercase; }
+    .eyebrow { margin: 0 0 9px; color: #e8b47d; font-size: 11px; font-weight: 750; letter-spacing: 1.7px; text-transform: uppercase; }
     h1, h2, h3, p { margin-top: 0; }
-    h1 { margin-bottom: 8px; font: 500 clamp(30px, 4vw, 43px)/1.1 Georgia, "Times New Roman", serif; letter-spacing: -1.3px; }
-    .intro-copy { margin: 0; color: var(--muted); font-size: 14px; }
+    h1 { margin-bottom: 8px; color: #f4f3e9; font: 500 clamp(30px, 4vw, 43px)/1.1 Georgia, "Times New Roman", serif; letter-spacing: -1.3px; }
+    .intro-copy { margin: 0; color: #d5e0d4; font-size: 14px; }
 
     .workspace { display: grid; grid-template-columns: minmax(210px, 245px) minmax(330px, 1fr) minmax(320px, .92fr); gap: 20px; align-items: start; }
     .panel { background: var(--paper); border: 1px solid var(--line); border-radius: 17px; box-shadow: var(--shadow); overflow: hidden; }
+    .workspace > :first-child { border-color: #dce5d7; background: var(--recipe-list-card); }
+    .workspace > #recipe-panel { border-color: #d4e1d3; background: var(--recipe-detail-card); }
+    .workspace > .shopping-panel { border-color: #dce5d7; background: var(--shopping-card); }
     .panel-head { padding: 22px 22px 15px; }
     .panel-title-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
     .panel-title { margin: 0; font: 500 21px/1.2 Georgia, "Times New Roman", serif; letter-spacing: -.4px; }
     .subtle-count { color: var(--muted); font-size: 12px; white-space: nowrap; }
     .recipe-tools { padding: 0 17px 15px; }
     .recipe-backup-actions, .shopping-backup-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; margin-top: 9px; }
-    .backup-button { min-height: 36px; padding: 7px 5px; border: 1px solid var(--line); border-radius: 8px; color: var(--green-dark); background: #fffefa; font-size: 10px; font-weight: 700; white-space: nowrap; }
-    .backup-button:hover { border-color: #bdc8b9; background: #f5f7f2; }
+    .backup-button { min-height: 36px; padding: 7px 5px; border: 1px solid #e3e7dd; border-radius: 8px; color: var(--green-dark); background: var(--green-tint); font-size: 10px; font-weight: 700; white-space: nowrap; transition: background .15s ease, border-color .15s ease, transform .15s ease; }
+    .backup-button:hover { border-color: #bdc8b9; background: var(--green-soft); transform: translateY(-1px); }
     .search-wrap { position: relative; }
     .search-icon { position: absolute; top: 11px; left: 12px; color: #8c9087; pointer-events: none; }
     .search { width: 100%; height: 39px; padding: 0 12px 0 36px; border: 1px solid var(--line); border-radius: 9px; outline: 0; color: var(--ink); background: #fff; font-size: 12px; }
@@ -82,47 +97,54 @@
     .recipe-list { padding: 0 9px 9px; }
     .recipe-card { width: 100%; border: 0; padding: 13px 12px; display: flex; align-items: center; gap: 11px; border-radius: 11px; text-align: left; color: var(--ink); background: transparent; transition: background .15s ease; }
     .recipe-card:hover { background: #f7f7f1; }
-    .recipe-card.selected { background: var(--green-soft); }
+    .recipe-card.selected { background: var(--green-soft); box-shadow: inset 3px 0 var(--green); }
     .recipe-emoji { flex: 0 0 39px; width: 39px; height: 39px; display: grid; place-items: center; border-radius: 12px; background: #f1eee6; font-size: 20px; }
     .selected .recipe-emoji { background: #f7f8f3; }
     .recipe-name { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; font-weight: 700; }
     .recipe-meta { display: block; margin-top: 4px; color: var(--muted); font-size: 10px; }
-    .add-recipe { width: calc(100% - 34px); margin: 8px 17px 18px; padding: 11px; border: 1px dashed #bdc8b9; border-radius: 9px; color: var(--green); background: transparent; font-size: 12px; font-weight: 700; }
-    .add-recipe:hover { background: #f5f7f2; }
+    .add-recipe { width: calc(100% - 34px); margin: 8px 17px 18px; padding: 11px; border: 1px solid #c8d6c6; border-radius: 9px; color: var(--green-dark); background: var(--green-tint); font-size: 12px; font-weight: 750; transition: background .15s ease, border-color .15s ease, transform .15s ease; }
+    .add-recipe:hover { border-color: #a9bea8; background: var(--green-soft); transform: translateY(-1px); }
     .empty-search { padding: 18px 12px; color: var(--muted); font-size: 12px; text-align: center; }
 
     .recipe-content { padding: 22px 23px 20px; }
     .recipe-detail-head { display: flex; justify-content: space-between; gap: 15px; align-items: flex-start; margin-bottom: 18px; }
     .recipe-detail-head h2 { margin: 0 0 7px; font: 500 27px/1.15 Georgia, "Times New Roman", serif; letter-spacing: -.6px; }
     .recipe-actions { display: flex; flex: 0 0 auto; flex-wrap: wrap; align-items: center; gap: 6px; }
-    .recipe-action { min-height: 34px; padding: 0 9px; border: 1px solid var(--line); border-radius: 8px; color: var(--green-dark); background: white; font-size: 10px; font-weight: 700; }
-    .recipe-action:hover { background: #f5f7f2; }
-    .recipe-action.delete { color: #a34e3b; }
-    .recipe-action.delete:hover { border-color: #e7c8bd; background: #fbf1ed; }
+    .recipe-collapsed { padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .recipe-collapsed-title { min-width: 0; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 500 18px Georgia, "Times New Roman", serif; }
+    .recipe-collapsed-summary { margin: 4px 0 0; color: var(--muted); font-size: 10px; }
+    .recipe-action { min-height: 34px; padding: 0 9px; border: 1px solid #dce6da; border-radius: 8px; color: var(--green-dark); background: var(--green-tint); font-size: 10px; font-weight: 700; transition: background .15s ease, border-color .15s ease; }
+    .recipe-action:hover { border-color: #bdcdbb; background: var(--green-soft); }
+    .recipe-action.delete { border-color: #f0d7ca; color: var(--danger); background: var(--danger-soft); }
+    .recipe-action.delete:hover { border-color: #e3b9a8; background: #f8e6de; }
     .recipe-action:disabled { cursor: not-allowed; opacity: .5; }
     .recipe-description { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.55; }
-    .recipe-badge { flex: 0 0 auto; padding: 8px 10px; border-radius: 9px; color: var(--green); background: #eef2eb; font-size: 11px; font-weight: 700; }
+    .recipe-badge { flex: 0 0 auto; padding: 8px 10px; border-radius: 9px; color: var(--green); background: var(--green-soft); font-size: 11px; font-weight: 700; }
     .recipe-facts { display: flex; gap: 18px; padding: 13px 0 17px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); color: var(--muted); font-size: 11px; }
     .recipe-facts strong { margin-left: 4px; color: var(--ink); font-weight: 650; }
     .ingredients-heading { margin: 19px 0 12px; display: flex; justify-content: space-between; align-items: center; }
     .ingredients-heading h3, .shopping-section-title { margin: 0; font: 500 17px Georgia, "Times New Roman", serif; }
     .ingredient-count { color: var(--muted); font-size: 11px; }
+    .ingredient-controls { display: flex; align-items: center; gap: 7px; }
     .filter-tabs { padding: 3px; display: flex; gap: 3px; border: 1px solid var(--line); border-radius: 9px; background: #f7f6f1; }
     .filter-tab { padding: 6px 8px; border: 0; border-radius: 6px; color: var(--muted); background: transparent; font-size: 10px; white-space: nowrap; }
     .filter-tab.active { color: var(--green-dark); background: white; box-shadow: 0 1px 3px rgba(0,0,0,.08); font-weight: 700; }
+    .clear-pantry, .clear-list { padding: 5px 8px; border: 1px solid #efd6c5; border-radius: 7px; color: #87512f; background: var(--orange-soft); font-size: 10px; font-weight: 700; white-space: nowrap; transition: background .15s ease, border-color .15s ease; }
+    .clear-pantry:hover:not(:disabled), .clear-list:hover { border-color: #e3b999; background: #f8e4d4; }
+    .clear-pantry:disabled { cursor: not-allowed; opacity: .5; }
     .ingredient-list { display: grid; gap: 7px; }
     .ingredient-row { min-height: 48px; padding: 9px 11px; display: flex; align-items: center; gap: 10px; border: 1px solid var(--line); border-radius: 9px; transition: background .15s ease, border .15s ease; }
     .ingredient-row:hover { border-color: #cdd7ca; }
-    .ingredient-row.in-pantry { background: #f7f8f4; border-color: #e7ebe3; }
+    .ingredient-row.in-pantry { background: var(--green-tint); border-color: #dce8da; }
     .check { flex: 0 0 17px; width: 17px; height: 17px; margin: 0; accent-color: var(--green); cursor: pointer; }
     .ingredient-name { flex: 1; color: #363b35; font-size: 12px; line-height: 1.4; }
     .ingredient-row.in-pantry .ingredient-name { color: #92978e; text-decoration: line-through; }
-    .status-label { color: #7b9077; font-size: 10px; white-space: nowrap; }
+    .status-label { color: var(--green); font-size: 10px; font-weight: 650; white-space: nowrap; }
     .no-ingredients { padding: 18px 12px; border: 1px dashed var(--line); border-radius: 9px; color: var(--muted); font-size: 12px; text-align: center; }
     .recipe-footer { margin-top: 17px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
     .hint { max-width: 195px; margin: 0; color: var(--muted); font-size: 10px; line-height: 1.5; }
-    .primary-button { display: inline-flex; justify-content: center; align-items: center; gap: 8px; min-height: 40px; padding: 0 14px; border: 0; border-radius: 9px; color: #fff; background: var(--green); font-size: 11px; font-weight: 700; white-space: nowrap; transition: background .15s ease, transform .15s ease; }
-    .primary-button:hover:not(:disabled) { background: var(--green-dark); transform: translateY(-1px); }
+    .primary-button { display: inline-flex; justify-content: center; align-items: center; gap: 8px; min-height: 40px; padding: 0 14px; border: 1px solid var(--green-dark); border-radius: 9px; color: #fff; background: var(--green); box-shadow: 0 3px 8px rgba(38, 70, 51, .15); font-size: 11px; font-weight: 750; white-space: nowrap; transition: background .15s ease, box-shadow .15s ease, transform .15s ease; }
+    .primary-button:hover:not(:disabled) { background: var(--green-dark); box-shadow: 0 5px 12px rgba(38, 70, 51, .2); transform: translateY(-1px); }
     .primary-button:disabled { cursor: not-allowed; opacity: .48; }
 
     .shopping-panel { position: sticky; top: 18px; }
@@ -135,27 +157,29 @@
     .ad-hoc-form { display: flex; gap: 7px; }
     .text-input, .text-area { width: 100%; min-width: 0; border: 1px solid var(--line); border-radius: 8px; outline: 0; color: var(--ink); background: white; font-size: 12px; }
     .text-input { height: 39px; padding: 0 11px; }
-    .add-item-button { flex: 0 0 39px; width: 39px; height: 39px; display: grid; place-items: center; border: 0; border-radius: 8px; color: white; background: var(--green); }
-    .add-item-button:hover { background: var(--green-dark); }
+    .add-item-button { flex: 0 0 39px; width: 39px; height: 39px; display: grid; place-items: center; border: 1px solid var(--green-dark); border-radius: 8px; color: white; background: var(--green); box-shadow: 0 2px 6px rgba(38, 70, 51, .15); transition: background .15s ease, transform .15s ease; }
+    .add-item-button:hover { background: var(--green-dark); transform: translateY(-1px); }
     .add-item-label { margin: 7px 0 19px; color: var(--muted); font-size: 10px; }
     .shopping-list-title-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 9px; }
     .shopping-section-title { font-size: 16px; }
     .show-checked { display: flex; align-items: center; gap: 5px; color: var(--muted); font-size: 10px; cursor: pointer; }
     .show-checked input { width: 13px; height: 13px; margin: 0; accent-color: var(--green); }
     .shopping-list { display: grid; gap: 6px; }
-    .shopping-row { min-height: 43px; padding: 8px 9px; display: flex; align-items: center; gap: 9px; border-radius: 8px; background: #f8f7f2; }
-    .shopping-row.checked { background: #f4f5f1; }
+    .shopping-row { min-height: 43px; padding: 8px 9px; display: flex; align-items: center; gap: 9px; border: 1px solid #f0eee6; border-radius: 8px; background: #fbf8f1; }
+    .shopping-row.checked { border-color: #e4ebdf; background: var(--green-tint); }
     .shopping-row.checked .shopping-item-name { color: #999d95; text-decoration: line-through; }
     .shopping-item-name { flex: 1; overflow-wrap: anywhere; font-size: 11px; }
     .shopping-source { display: block; margin-top: 3px; color: #989b93; font-size: 9px; }
-    .remove-item { width: 25px; height: 25px; display: grid; place-items: center; border: 0; border-radius: 6px; color: #92968e; background: transparent; }
-    .remove-item:hover { color: #a34e3b; background: #f3e8e3; }
+    .remove-item { width: 27px; height: 27px; display: grid; place-items: center; border: 1px solid transparent; border-radius: 7px; color: #777d72; background: transparent; transition: color .15s ease, background .15s ease, border-color .15s ease; }
+    .remove-item:hover { border-color: #f0d7ca; color: var(--danger); background: var(--danger-soft); }
     .empty-list { padding: 21px 12px; border: 1px dashed var(--line); border-radius: 9px; color: var(--muted); text-align: center; }
     .empty-list strong { display: block; margin-bottom: 5px; color: #596054; font-size: 12px; }
     .empty-list span { font-size: 10px; line-height: 1.5; }
     .list-footer { margin-top: 11px; padding-top: 10px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--line); color: var(--muted); font-size: 10px; }
-    .clear-checked { padding: 4px 0; border: 0; color: var(--green); background: transparent; font-size: 10px; font-weight: 650; }
-    .clear-checked:hover { text-decoration: underline; }
+    .clear-checked { padding: 5px 8px; border: 1px solid #dce6da; border-radius: 7px; color: var(--green-dark); background: var(--green-tint); font-size: 10px; font-weight: 700; transition: background .15s ease, border-color .15s ease; }
+    .clear-checked:hover { border-color: #bdcdbb; background: var(--green-soft); }
+    .list-footer-actions { display: flex; align-items: center; gap: 12px; }
+    .clear-list { color: var(--danger); background: var(--danger-soft); }
 
     .toast { position: fixed; left: 50%; bottom: 24px; z-index: 5; padding: 12px 17px; border-radius: 10px; color: white; background: #263c2d; box-shadow: 0 8px 24px rgba(0,0,0,.16); font-size: 12px; opacity: 0; transform: translate(-50%, 10px); pointer-events: none; transition: opacity .2s ease, transform .2s ease; }
     .toast.visible { opacity: 1; transform: translate(-50%, 0); }
@@ -171,8 +195,8 @@
     .field-help { margin: -2px 0 0; color: var(--muted); font-size: 10px; }
     .field-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .dialog-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 19px; }
-    .secondary-button { min-height: 39px; padding: 0 14px; border: 1px solid var(--line); border-radius: 9px; color: #555a51; background: white; font-size: 11px; font-weight: 650; }
-    .secondary-button:hover { background: #f8f7f3; }
+    .secondary-button { min-height: 39px; padding: 0 14px; border: 1px solid #dce3d8; border-radius: 9px; color: var(--green-dark); background: var(--green-tint); font-size: 11px; font-weight: 700; transition: background .15s ease, border-color .15s ease; }
+    .secondary-button:hover { border-color: #bdc8b9; background: var(--green-soft); }
     .empty-recipe { padding: 44px 25px; text-align: center; }
     .empty-recipe .recipe-emoji { margin: 0 auto 14px; }
     .empty-recipe h2 { margin-bottom: 7px; font: 500 24px Georgia, "Times New Roman", serif; }
@@ -395,8 +419,9 @@
           const cleanedState = {
             recipes,
             shoppingItems,
-            selectedRecipeId: recipes.some(recipe => recipe.id === saved.selectedRecipeId)
-              ? saved.selectedRecipeId : recipes[0]?.id || "",
+            selectedRecipeId: saved.selectedRecipeId === ""
+              ? "" : recipes.some(recipe => recipe.id === saved.selectedRecipeId)
+                ? saved.selectedRecipeId : recipes[0]?.id || "",
             pantry
           };
           if (recipes.length !== saved.recipes.length ||
@@ -424,6 +449,7 @@
     let state = loadState();
     let ingredientFilter = "all";
     let showChecked = false;
+    let recipeDetailsMinimized = false;
     let toastTimeout;
     let editingRecipeId = null;
     let shoppingMode = false;
@@ -567,6 +593,7 @@
       );
       if (state.selectedRecipeId === recipe.id) {
         state.selectedRecipeId = state.recipes[0]?.id || "";
+        recipeDetailsMinimized = false;
       }
       ingredientFilter = "all";
       saveState();
@@ -791,7 +818,7 @@
       document.getElementById("recipe-count").textContent = `${state.recipes.length} saved`;
       document.getElementById("recipe-list").innerHTML = visibleRecipes.length
         ? visibleRecipes.map(recipe => `
-          <button type="button" class="recipe-card ${recipe.id === state.selectedRecipeId ? "selected" : ""}" data-action="select-recipe" data-recipe-id="${escapeHtml(recipe.id)}" aria-pressed="${recipe.id === state.selectedRecipeId}">
+          <button type="button" class="recipe-card ${recipe.id === state.selectedRecipeId ? "selected" : ""}" data-action="select-recipe" data-recipe-id="${escapeHtml(recipe.id)}" aria-pressed="${recipe.id === state.selectedRecipeId}" aria-label="${recipe.id === state.selectedRecipeId ? "Deselect" : "Select"} ${escapeHtml(recipe.name)}">
             <span class="recipe-emoji" aria-hidden="true">${escapeHtml(recipe.emoji || "🍲")}</span>
             <span>
               <span class="recipe-name">${escapeHtml(recipe.name)}</span>
@@ -805,12 +832,30 @@
       const panel = document.getElementById("recipe-panel");
       const recipe = getSelectedRecipe();
       if (!recipe) {
-        panel.innerHTML = `
+        panel.innerHTML = state.recipes.length ? `
+          <div class="recipe-collapsed">
+            <div>
+              <h2 class="recipe-collapsed-title">No recipe selected</h2>
+              <p class="recipe-collapsed-summary">Choose a recipe from Your recipes to view its ingredients.</p>
+            </div>
+          </div>` : `
           <div class="empty-recipe">
             <span class="recipe-emoji" aria-hidden="true">📖</span>
             <h2>Your recipe book is ready.</h2>
             <p>Add a recipe to get started, then check off the ingredients already in your kitchen.</p>
             <button type="button" class="primary-button" data-action="open-recipe-form">Add your first recipe</button>
+          </div>`;
+        return;
+      }
+
+      if (recipeDetailsMinimized) {
+        panel.innerHTML = `
+          <div class="recipe-collapsed">
+            <div>
+              <h2 class="recipe-collapsed-title">${escapeHtml(recipe.emoji || "🍲")} &nbsp; ${escapeHtml(recipe.name)}</h2>
+              <p class="recipe-collapsed-summary">${recipe.ingredients.length} ingredients · Recipe selected</p>
+            </div>
+            <button type="button" class="recipe-action" data-action="toggle-recipe-details" aria-expanded="false">Show details</button>
           </div>`;
         return;
       }
@@ -829,6 +874,7 @@
             </div>
             <div class="recipe-actions">
               <span class="recipe-badge">${escapeHtml(recipe.emoji || "🍲")} &nbsp; Recipe</span>
+              <button type="button" class="recipe-action" data-action="toggle-recipe-details" aria-expanded="true">Minimize</button>
               <button type="button" class="recipe-action" data-action="share-recipe" data-recipe-id="${escapeHtml(recipe.id)}">Share</button>
               <button type="button" class="recipe-action" data-action="edit-recipe" data-recipe-id="${escapeHtml(recipe.id)}">Edit</button>
               <button type="button" class="recipe-action delete" data-action="delete-recipe" data-recipe-id="${escapeHtml(recipe.id)}">Delete</button>
@@ -844,10 +890,13 @@
               <h3>Ingredients</h3>
               <span class="ingredient-count">${needed.length} still to get</span>
             </div>
-            <div class="filter-tabs" role="group" aria-label="Filter ingredients">
-              <button type="button" class="filter-tab ${ingredientFilter === "all" ? "active" : ""}" data-action="set-filter" data-filter="all">All ${recipe.ingredients.length}</button>
-              <button type="button" class="filter-tab ${ingredientFilter === "needed" ? "active" : ""}" data-action="set-filter" data-filter="needed">To get ${needed.length}</button>
-              <button type="button" class="filter-tab ${ingredientFilter === "pantry" ? "active" : ""}" data-action="set-filter" data-filter="pantry">In kitchen ${inPantry.length}</button>
+            <div class="ingredient-controls">
+              <button type="button" class="clear-pantry" data-action="uncheck-all" aria-label="Uncheck all ingredients marked as in your kitchen" ${inPantry.length ? "" : "disabled"}>Uncheck all</button>
+              <div class="filter-tabs" role="group" aria-label="Filter ingredients">
+                <button type="button" class="filter-tab ${ingredientFilter === "all" ? "active" : ""}" data-action="set-filter" data-filter="all">All ${recipe.ingredients.length}</button>
+                <button type="button" class="filter-tab ${ingredientFilter === "needed" ? "active" : ""}" data-action="set-filter" data-filter="needed">To get ${needed.length}</button>
+                <button type="button" class="filter-tab ${ingredientFilter === "pantry" ? "active" : ""}" data-action="set-filter" data-filter="pantry">In kitchen ${inPantry.length}</button>
+              </div>
             </div>
           </div>
           <div class="ingredient-list">
@@ -888,7 +937,7 @@
           </div>`).join("")
         : `<div class="empty-list"><strong>${unchecked.length === 0 && checked.length > 0 ? "All picked up!" : "Your list is clear."}</strong><span>${unchecked.length === 0 && checked.length > 0 ? "Nice work. You have everything you need." : "Add ingredients from a recipe or pop in anything else you need."}</span></div>`;
       document.getElementById("list-footer").innerHTML = state.shoppingItems.length
-        ? `<span>${checked.length ? `${checked.length} picked up · ` : ""}${unchecked.length} to go</span>${checked.length ? '<button type="button" class="clear-checked" data-action="clear-checked">Clear picked up</button>' : ""}`
+        ? `<span>${checked.length ? `${checked.length} picked up · ` : ""}${unchecked.length} to go</span><div class="list-footer-actions">${checked.length ? '<button type="button" class="clear-checked" data-action="clear-checked">Clear picked up</button>' : ""}<button type="button" class="clear-list" data-action="clear-list">Clear list</button></div>`
         : `<span>Your list is saved on this device.</span>`;
     }
 
@@ -920,13 +969,26 @@
       if (!button) return;
       const action = button.dataset.action;
       if (action === "select-recipe") {
-        state.selectedRecipeId = button.dataset.recipeId;
+        state.selectedRecipeId = state.selectedRecipeId === button.dataset.recipeId
+          ? "" : button.dataset.recipeId;
+        recipeDetailsMinimized = false;
         ingredientFilter = "all";
         saveState();
         render();
+      } else if (action === "toggle-recipe-details") {
+        recipeDetailsMinimized = !recipeDetailsMinimized;
+        renderRecipe();
       } else if (action === "set-filter") {
         ingredientFilter = button.dataset.filter;
         renderRecipe();
+      } else if (action === "uncheck-all") {
+        const recipe = getSelectedRecipe();
+        if (!recipe) return;
+        state.pantry[recipe.id] = [];
+        ingredientFilter = "all";
+        saveState();
+        renderRecipe();
+        showToast("All recipe ingredients unchecked.");
       } else if (action === "add-missing") {
         addMissingIngredients();
       } else if (action === "remove-shopping-item") {
@@ -938,6 +1000,12 @@
         saveState();
         renderShoppingList();
         showToast("Picked-up items cleared.");
+      } else if (action === "clear-list") {
+        state.shoppingItems = [];
+        showChecked = false;
+        saveState();
+        renderShoppingList();
+        showToast("Shopping list cleared.");
       } else if (action === "open-recipe-form") {
         openRecipeForm();
       } else if (action === "edit-recipe") {
